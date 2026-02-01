@@ -2,7 +2,10 @@
     "routes": [
         {
             "src": "/(.*)",
-            "dest": "app/main.py"
+            "dest": "api/main.py"
         }
-    ]
+    ],
+    "env": {
+        "PYTHON_VERSION": "3.11"
+    }
 }

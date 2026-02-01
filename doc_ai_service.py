@@ -3,8 +3,8 @@ from google.oauth2 import service_account
 from google.api_core.client_options import ClientOptions
 from typing import Dict, Optional, Tuple
 import io
-from app.config import settings
-from app.schemas import FrontNationalIDData, RearNationalIDData, ProcessorType
+from config import settings
+from schemas import FrontNationalIDData, RearNationalIDData, ProcessorType
 
 class DocumentAIService:
     """Service to handle Google Document AI operations"""

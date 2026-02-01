@@ -1,7 +1,7 @@
 from fastapi import FastAPI, APIRouter, UploadFile, File, HTTPException
 from fastapi.responses import JSONResponse
-from app.doc_ai_service import doc_ai_service
-from app.schemas import NationalIDResponse, ErrorResponse, ProcessorType
+from doc_ai_service import doc_ai_service
+from schemas import NationalIDResponse, ErrorResponse, ProcessorType
 import traceback
 
 doc_ai = APIRouter(prefix="/api/doc-ai", tags=["Document AI"])
