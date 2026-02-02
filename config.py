@@ -25,6 +25,10 @@ class Settings:
     REAR_NATIONAL_ID_API_ENDPOINT: str = os.getenv("REAR_NATIONAL_ID_API_ENDPOINT")
     REAR_NATIONAL_ID_PROCESSOR_ID: str = os.getenv("REAR_NATIONAL_ID_PROCESSOR_ID")
     
+    # CORS Settings
+    DEV_CLIENT_ORIGIN: str = os.getenv("DEV_CLIENT_ORIGIN")
+    PROD_CLIENT_ORIGIN: str = os.getenv("PROD_CLIENT_ORIGIN")
+    
     @classmethod
     def get_credentials_dict(cls) -> dict:
         """Returns the Google credentials as a dictionary"""
