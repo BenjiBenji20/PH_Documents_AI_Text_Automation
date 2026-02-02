@@ -1,7 +1,9 @@
 from fastapi import FastAPI, APIRouter, UploadFile, File, HTTPException
 from fastapi.responses import JSONResponse
 from doc_ai_service import doc_ai_service
-from schemas import NationalIDResponse, ErrorResponse, ProcessorType
+from config import settings
+from schemas import NationalIDResponse, ProcessorType
+from fastapi.middleware.cors import CORSMiddleware
 import traceback
 
 doc_ai = APIRouter(prefix="/api/doc-ai", tags=["Document AI"])
@@ -179,6 +181,15 @@ app = FastAPI(
     description="FastAPI backend for processing Philippine National ID using Google Document AI",
     version="1.0.0"
 )
+
+# CORS Configuration - Allow request from frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[settings.DEV_CLIENT_ORIGIN, settings.PROD_CLIENT_ORIGIN],
+    allow_credentials=True,
+    allow_methods=["*"], # GET, POST, PUT, DELETE, OPTIONS
+    allow_headers=["*"],  # Allows all headers
+  )
 
 # Include router
 app.include_router(doc_ai)
