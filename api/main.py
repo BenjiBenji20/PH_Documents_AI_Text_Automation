@@ -1,8 +1,7 @@
 from fastapi import FastAPI, APIRouter, UploadFile, File, HTTPException
-from fastapi.responses import JSONResponse
 from doc_ai_service import get_doc_ai_service
 from config import settings
-from schemas import NationalIDResponse, ProcessorType
+from schemas import GenericResponse, NationalIDResponse, NationalIDValidationRequest, ProcessorType
 from fastapi.middleware.cors import CORSMiddleware
 import traceback
 
@@ -40,82 +39,6 @@ async def test_connection():
         raise HTTPException(
             status_code=500,
             detail=f"Failed to connect to Document AI: {str(e)}"
-        )
-
-
-@doc_ai.post("/process-front", response_model=NationalIDResponse)
-async def process_front_id(file: UploadFile = File(...)):
-    """
-    Process the FRONT side of PH National ID.
-    Accepts: image files (JPEG, PNG) or PDF
-    """
-    try:
-        # Read file content
-        file_content = await file.read()
-        
-        # Determine MIME type
-        mime_type = file.content_type
-        if mime_type not in ["image/jpeg", "image/png", "application/pdf"]:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Unsupported file type: {mime_type}. Please upload JPEG, PNG, or PDF."
-            )
-        
-        # Process the document
-        front_data, raw_text = get_doc_ai_service().process_front_id(file_content, mime_type)
-        
-        return NationalIDResponse(
-            success=True,
-            message="Front ID processed successfully",
-            processor_used=ProcessorType.FRONT,
-            front_data=front_data,
-            rear_data=None,
-            raw_text=raw_text
-        )
-        
-    except Exception as e:
-        error_detail = traceback.format_exc()
-        raise HTTPException(
-            status_code=500,
-            detail=f"Error processing front ID: {str(e)}\n{error_detail}"
-        )
-
-
-@doc_ai.post("/process-rear", response_model=NationalIDResponse)
-async def process_rear_id(file: UploadFile = File(...)):
-    """
-    Process the REAR side of PH National ID.
-    Accepts: image files (JPEG, PNG) or PDF
-    """
-    try:
-        # Read file content
-        file_content = await file.read()
-        
-        # Determine MIME type
-        mime_type = file.content_type
-        if mime_type not in ["image/jpeg", "image/png", "application/pdf"]:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Unsupported file type: {mime_type}. Please upload JPEG, PNG, or PDF."
-            )
-        
-        # Process the document
-        rear_data, raw_text = get_doc_ai_service().process_rear_id(file_content, mime_type)
-        
-        return NationalIDResponse(
-            success=True,
-            message="Rear ID processed successfully",
-            processor_used=ProcessorType.REAR,
-            front_data=None,
-            rear_data=rear_data,
-            raw_text=raw_text
-        )
-        
-    except Exception as e:
-        error_detail = traceback.format_exc()
-        raise HTTPException(
-            status_code=500,
-            detail=f"Error processing rear ID: {str(e)}\n{error_detail}"
         )
 
 
@@ -175,6 +98,36 @@ async def process_auto_detect(file: UploadFile = File(...)):
         )
 
 
+@doc_ai.post("/submit-validated-data", response_model=GenericResponse)
+async def submit_validated_data(validated_data: NationalIDValidationRequest):
+    """
+    Handle user validated data before stored to database
+    """
+    try:
+        submit_validated_data = await get_doc_ai_service().submit_validated_data(
+            validated_data=validated_data
+        )
+        
+        if not submit_validated_data.success:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Error handling data: {validated_data}"
+            )
+        
+        return GenericResponse(
+            success=True,
+            description=submit_validated_data.description,
+            message=submit_validated_data.message,
+            length=submit_validated_data.length
+        )
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to process data: {str(e)}"
+        )
+
+
 # Create FastAPI app
 app = FastAPI(
     title="Document AI - PH National ID Processor",
@@ -202,8 +155,6 @@ async def root():
         "endpoints": {
             "health_check": "/api/doc-ai/",
             "test_connection": "/api/doc-ai/test-connection",
-            "process_front": "/api/doc-ai/process-front",
-            "process_rear": "/api/doc-ai/process-rear",
             "process_auto": "/api/doc-ai/process-auto"
         }
     }

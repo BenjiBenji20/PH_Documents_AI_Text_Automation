@@ -32,6 +32,17 @@ class NationalIDResponse(BaseModel):
     front_data: Optional[FrontNationalIDData] = None
     rear_data: Optional[RearNationalIDData] = None
     raw_text: Optional[str] = None  # For debugging purposes
+    
+class NationalIDValidationRequest(BaseModel):
+    """Handle National ID Validation Request"""
+    front_data: Optional[FrontNationalIDData] = None
+    rear_data: Optional[RearNationalIDData] = None
+    
+class GenericResponse(BaseModel):
+    success: bool = True
+    description: Optional[str] = None
+    message: Optional[str] = None
+    length: Optional[int] = None
 
 class ErrorResponse(BaseModel):
     """Error response model"""

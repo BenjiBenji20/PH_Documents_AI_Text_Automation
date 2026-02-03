@@ -4,7 +4,7 @@ from google.api_core.client_options import ClientOptions
 from typing import Dict, Optional, Tuple
 import io
 from config import settings
-from schemas import FrontNationalIDData, RearNationalIDData, ProcessorType
+from schemas import *
 
 class DocumentAIService:
     """Service to handle Google Document AI operations"""
@@ -187,6 +187,35 @@ class DocumentAIService:
         combined_text = "\n\n".join(raw_texts)
         
         return front_data, rear_data, processor_type, combined_text
+    
+    
+    async def submit_validated_data(
+        self, 
+        validated_data: NationalIDValidationRequest
+    ) -> GenericResponse:
+        """Store validated data in database"""
+        try:
+            # store to database
+            print(f"\n\nStoring to database: {validated_data}\n\n")
+            
+            # TODO: db response validation here
+            # if not is_stored:
+            #     return GenericResponse(
+            #         success=False,
+            #         message="Failed to store validated data.",
+            #         length=0
+            #     )
+            
+            return GenericResponse(
+                success=True,
+                description="Validate data",
+                message="Your verified information has been submitted successfully!",
+                length=1
+            )
+            
+        except Exception as e:
+            print(f"Storing validated data failed: {str(e)}")
+        
 
 # Initialize service as singleton
 doc_ai_service = None
